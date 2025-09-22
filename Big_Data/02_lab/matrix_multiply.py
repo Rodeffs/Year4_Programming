@@ -1,17 +1,14 @@
 def mapping(A, B):
-    row_count_A, col_count_B = len(mat), len(mat[0])
+    row_count_A, col_count_A = len(A), len(A[0])
+    row_count_B, col_count_B = len(B), len(B[0])
+    
+    # Индексом будет строка и столбец получившейся матрицы C
 
-    for row in range(row_count):
-        for col in range(col_count):
-            
-            # Для левой матрицы ключом служит её номер строки, а значениями - номер колонки и элемент
+    for row_A in range(row_count_A):
+        for col_A in range(col_count_A):
+            for col_B in range(col_count_B):
+                yield ((row_A, col_B), ('A', col_A, A[row_A][col_A]))
 
-            if order == "left":
-                yield (row, ('A', col, mat[row][col]))
-
-            # Для правой матрицы ключом служит её номер столбца, а значениями - номер строки и элемент
-
-            else:
                 yield (col, ('B', row, mat[row][col]))
 
 
