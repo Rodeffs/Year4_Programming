@@ -2,6 +2,7 @@ from random import uniform
 from math import log
 from argparse import ArgumentParser
 import png
+from time import time
 
 
 def random_travel(width, height, x_target, y_target, iter_count):
@@ -108,8 +109,10 @@ def main():
     if args.s:
         return
 
+    start = time()
+
     fractal = random_travel(args.d, args.d, args.x, args.y, args.i)
-    print()
+    print("\nExecution time:", time()-start)
 
     image = png.from_array(fractal, "L;1")  # L;1 - greyscale with bitdepth 1
     image.save(f"{args.d}x{args.d}_{args.i}.png")
