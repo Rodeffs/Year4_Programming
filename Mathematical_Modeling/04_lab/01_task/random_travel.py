@@ -1,4 +1,5 @@
 from random import uniform
+from math import log
 from argparse import ArgumentParser
 import png
 
@@ -83,18 +84,17 @@ def random_travel(width, height, x_target, y_target, iter_count):
 
                     else:
                         x -= 1
-    print()
     return plane
 
 
 def parse():
     parser = ArgumentParser()
 
-    parser.add_argument("-W", required=True, type=int, help="the width of the image")
-    parser.add_argument("-H", required=True, type=int, help="the height of the image")
+    parser.add_argument("-d", required=True, type=int, help="the dimensions of the image, both height and width")
     parser.add_argument("-x", required=True, type=int, help="the x coordinate for the root of fractal")
     parser.add_argument("-y", required=True, type=int, help="the y coordinate for the root of fractal")
     parser.add_argument("-i", required=True, type=int, help="the number of iterations")
+    parser.add_argument("-s", action="store_true", help="if used will just calculate the fractal size without generating an image")
 
     return parser.parse_args()
 
@@ -102,8 +102,17 @@ def parse():
 def main():
     args = parse()
 
-    image = png.from_array(random_travel(args.W, args.H, args.x, args.y, args.i), "L;1")  # L;1 - greyscale with bitdepth 1
-    image.save(f"{args.W}x{args.H}_{args.i}.png")
+    fractal_size = log(args.i) / log(args.d) # фрактальная размерность по методу коробок, числитель - сколько пикселей покрывает фрактал, знаменатель - обратная величина размера пикселя относительно всего изображения
+    print("Fractal size =", fractal_size)
+
+    if args.s:
+        return
+
+    fractal = random_travel(args.d, args.d, args.x, args.y, args.i)
+    print()
+
+    image = png.from_array(fractal, "L;1")  # L;1 - greyscale with bitdepth 1
+    image.save(f"{args.d}x{args.d}_{args.i}.png")
 
 
 if __name__ == "__main__":
