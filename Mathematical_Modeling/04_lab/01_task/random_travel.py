@@ -5,20 +5,19 @@ import png
 from time import time
 
 
-def random_travel(width, height, x_target, y_target, iter_count):
-    plane = [[1 for x in range(width)] for y in range(height)]
+def random_travel(dim, x_target, y_target, iter_count):
+    plane = [[1 for x in range(dim)] for y in range(dim)]
     plane[y_target][x_target] = 0
 
-    x_max = width-1
-    y_max = height-1
+    d_max = dim-1
 
     i = 0
 
     while i < iter_count:
         print(f"Iteration {i+1}/{iter_count}", end="\r")
 
-        x = int(uniform(0, x_max))
-        y = int(uniform(0, y_max))
+        x = int(uniform(0, d_max))
+        y = int(uniform(0, d_max))
 
         if plane[y][x] == 0:
             continue
@@ -26,25 +25,25 @@ def random_travel(width, height, x_target, y_target, iter_count):
         freeze = False
 
         while True:
-            if (x < x_max):
+            if (x < d_max):
                 freeze = (plane[y][x+1] == 0)
             
             if (not freeze) and (x > 0):
                 freeze = (plane[y][x-1] == 0)
 
-            if (not freeze) and (y < y_max):
+            if (not freeze) and (y < d_max):
                 freeze = (plane[y+1][x] == 0)
 
             if (not freeze) and (y > 0):
                 freeze = (plane[y-1][x] == 0)
 
-            if (not freeze) and (x < x_max) and (y < y_max):
+            if (not freeze) and (x < d_max) and (y < d_max):
                 freeze = (plane[y+1][x+1] == 0)
 
-            if (not freeze) and (x < x_max) and (y > 0):
+            if (not freeze) and (x < d_max) and (y > 0):
                 freeze = (plane[y-1][x+1] == 0)
 
-            if (not freeze) and (x > 0) and (y < y_max):
+            if (not freeze) and (x > 0) and (y < d_max):
                 freeze = (plane[y+1][x-1] == 0)
 
             if (not freeze) and (x > 0) and (y > 0):
@@ -66,7 +65,7 @@ def random_travel(width, height, x_target, y_target, iter_count):
                         y += 1
 
                 elif 1/6 <= movement < 2/6:
-                    if y < y_max:
+                    if y < d_max:
                         y += 1
 
                     else:
@@ -80,7 +79,7 @@ def random_travel(width, height, x_target, y_target, iter_count):
                         x += 1
 
                 else:
-                    if x < x_max:
+                    if x < d_max:
                         x += 1
 
                     else:
@@ -111,7 +110,7 @@ def main():
 
     start = time()
 
-    fractal = random_travel(args.d, args.d, args.x, args.y, args.i)
+    fractal = random_travel(args.d, args.x, args.y, args.i)
     print("\nExecution time:", time()-start)
 
     image = png.from_array(fractal, "L;1")  # L;1 - greyscale with bitdepth 1
