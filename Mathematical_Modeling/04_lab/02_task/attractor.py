@@ -1,5 +1,5 @@
 from random import uniform
-from math import log, floor
+from math import log
 from argparse import ArgumentParser
 import png
 
