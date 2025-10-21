@@ -20,7 +20,7 @@ def Ux0(t):
 
 def U_1(x, t):  # решение, определяемое начальным условием
     y = (x+2)*exp(-t)
-    return 7.4*t + max(0, (2-y)*(y-11))
+    return max(0, (6-y)*(y-11)) + 7.4*t
 
 
 def U_2(x, t):  # решение, определяемое граничным условием
@@ -42,13 +42,19 @@ def analytical(width, height, dx, dt):
 
             first_intergal = x-2*exp(t)+2
 
-            if first_intergal >= 0:
+            if t == 0:
+                U = Ut0(x)
+
+            elif x == 0:
+                U = Ux0(t)
+
+            elif first_intergal >= 0:
                 U = U_1(x, t)
 
             else:
                 U = U_2(x, t)
 
-            points.append((x, t, U))
+            points.append((t, x, U))
 
     return points
 
@@ -72,7 +78,7 @@ def lower_right(width, height, dx, dt):
             else:
                 U[j][i] = U[j-1][i] + dt*(f(x, t) + V(x)/dx * (U[j-1][i-1] - U[j-1][i]))
 
-            points.append((x, t, U[j][i]))
+            points.append((t, x, U[j][i]))
 
     return points
 
@@ -96,7 +102,7 @@ def upper_right(width, height, dx, dt):
             else:
                 U[j][i] = dx/(dx + dt*V(x)) * (dt*f(x, t) + dt*V(x)/dx * U[j][i-1] + U[j-1][i])
 
-            points.append((x, t, U[j][i]))
+            points.append((t, x, U[j][i]))
 
     return points
 
@@ -117,8 +123,8 @@ def plot3d(points):
     X, Y, Z = [], [], []
 
     for point in points:
-        X.append(point[0])
-        Y.append(point[1])
+        X.append(point[1])
+        Y.append(point[0])
         Z.append(point[2])
 
     ax.plot(X, Y, Z)
@@ -137,7 +143,7 @@ def main():
     print("Сколько шагов разностной схемы по x?")
     width = int(input())
 
-    print("Какой график вывести? (1-3)\n1. Явный угол\n2. Неявный угол\n3. Аналитическое решение")
+    print("Какой график вывести? (1-4)\n1. Явный угол\n2. Неявный угол\n3. Аналитическое решение\n4. Значения в конкретных точках")
     select = input()
 
     dx = x_max/width
@@ -161,6 +167,34 @@ def main():
 
     elif select == "3":
         plot3d(sol3)
+
+    elif select == "4":
+        print("Введите значение t")
+        T = int(input())
+
+        begin = round(T/dt)
+        
+        ax = plt.figure().add_subplot()
+    
+        X = []
+        Y1, Y2, Y3 = [], [], []
+
+        for i in range(width+1):
+            X.append(sol1[begin + i][1])
+            Y1.append(sol1[begin + i][2])
+            Y2.append(sol2[begin + i][2])
+            Y3.append(sol3[begin + i][2])
+
+        ax.scatter(X, Y1, color="r", label="Явный угол")
+        ax.scatter(X, Y2, color="g", label="Неявный угол")
+        ax.scatter(X, Y3, color="b", label="Аналитическое решение")
+
+        ax.set_xlabel("x")
+        ax.set_ylabel("U")
+           
+        plt.legend()
+        plt.grid()
+        plt.show()
 
     else:
         print("Такого графика нет!")
