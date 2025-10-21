@@ -170,9 +170,8 @@ def main():
 
     elif select == "4":
         print("Введите значение t")
-        T = int(input())
 
-        begin = round(T/dt)
+        begin = round(int(input())/dt)
         
         ax = plt.figure().add_subplot()
     
