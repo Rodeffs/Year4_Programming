@@ -188,9 +188,9 @@ def main():
             Y2.append(val[2])
             Y3.append(val[3])
  
-        ax.plot(X, Y1, color="r", label="Явный угол")
-        ax.plot(X, Y2, color="g", label="Неявный угол")
-        ax.plot(X, Y3, color="b", label="Аналитическое решение")
+        ax.plot(X, Y1, color="r", label="Явный угол", marker=".")
+        ax.plot(X, Y2, color="g", label="Неявный угол", marker=".")
+        ax.plot(X, Y3, color="b", label="Аналитическое решение", marker=".")
 
         ax.set_xlabel("x")
         ax.set_ylabel("U")
