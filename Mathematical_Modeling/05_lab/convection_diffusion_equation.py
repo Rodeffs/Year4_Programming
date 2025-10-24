@@ -175,18 +175,22 @@ def main():
         
         ax = plt.figure().add_subplot()
     
-        X = []
-        Y1, Y2, Y3 = [], [], []
+        X, Y1, Y2, Y3, values = [], [], [], [], []
 
         for i in range(width+1):
-            X.append(sol1[begin + i][1])
-            Y1.append(sol1[begin + i][2])
-            Y2.append(sol2[begin + i][2])
-            Y3.append(sol3[begin + i][2])
-
-        ax.scatter(X, Y1, color="r", label="Явный угол")
-        ax.scatter(X, Y2, color="g", label="Неявный угол")
-        ax.scatter(X, Y3, color="b", label="Аналитическое решение")
+            values.append((sol1[begin + i][1], sol1[begin + i][2], sol2[begin + i][2], sol3[begin + i][2]))
+        
+        values = sorted(values, key=lambda x: x[0])
+        
+        for val in values:
+            X.append(val[0])
+            Y1.append(val[1])
+            Y2.append(val[2])
+            Y3.append(val[3])
+ 
+        ax.plot(X, Y1, color="r", label="Явный угол")
+        ax.plot(X, Y2, color="g", label="Неявный угол")
+        ax.plot(X, Y3, color="b", label="Аналитическое решение")
 
         ax.set_xlabel("x")
         ax.set_ylabel("U")
