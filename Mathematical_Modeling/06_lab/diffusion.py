@@ -119,15 +119,15 @@ def experiment(x_min, x_max, t_min, t_max, h, T, method): # численный �
     x_fixed = int(input())
 
     x, t, val1, val2, val3, val4, val5, val6 = [], [], [], [], [], [], [], []
-    max_diff_t1, max_diff_t2, max_diff_h1, max_diff_h2 = 0, 0, 0, 0
+    max_diff_T1, max_diff_T2, max_diff_h1, max_diff_h2 = 0, 0, 0, 0
 
     width = int((x_max - x_min)/h)
     height = int((t_max - t_min)/T)
 
     for j in range(height+1):
         for i in range(width+1):
-            max_diff_t1 = max(abs(U1[j][i]-U2[2*j][i]), max_diff_t1)
-            max_diff_t2 = max(abs(U2[2*j][i]-U3[4*j][i]), max_diff_t2)
+            max_diff_T1 = max(abs(U1[j][i]-U2[2*j][i]), max_diff_T1)
+            max_diff_T2 = max(abs(U2[2*j][i]-U3[4*j][i]), max_diff_T2)
             max_diff_h1 = max(abs(U4[16*j][i]-U5[16*j][2*i]), max_diff_h1)
             max_diff_h2 = max(abs(U5[16*j][2*i]-U6[16*j][4*i]), max_diff_h2)
 
@@ -143,7 +143,7 @@ def experiment(x_min, x_max, t_min, t_max, h, T, method): # численный �
                 val5.append(U5[16*j][2*i])
                 val6.append(U6[16*j][4*i])
         
-    approx_T = log(max_diff_t1/max_diff_t2)/log(2)
+    approx_T = log(max_diff_T1/max_diff_T2)/log(2)
     approx_h = log(max_diff_h1/max_diff_h2)/log(2)
 
     fig, axs = plt.subplots(1, 2)
