@@ -51,11 +51,11 @@ class FakeDocumentLinkRepository(DocumentLinkRepository):
         return self._data
 
 
-    def get_docs_to(self, doc_id) -> list[DocumentLink]:
+    def get_docs_to(self, doc_id) -> list[int]:
         ls = []
 
         for link in self.get_all():
-            if link.id_to == doc_id:
-                ls.append(link)
+            if link.id_from == doc_id:
+                ls.append(link.id_to)
 
         return ls

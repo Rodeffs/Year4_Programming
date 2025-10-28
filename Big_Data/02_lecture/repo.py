@@ -18,5 +18,5 @@ class DocumentLinkRepository(ABC):
         ...
 
     @abstractmethod
-    def get_docs_to(self, doc_id) -> list[DocumentLink]:
+    def get_docs_to(self, doc_id) -> list[int]:
         ...

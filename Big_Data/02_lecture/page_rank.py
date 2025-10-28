@@ -1,4 +1,6 @@
-from fake_doc import FakeDocumentRepository, FakeDocumentLinkRepository
+from typing import Iterator
+
+from fakes import FakeDocumentRepository, FakeDocumentLinkRepository
 
 n_rolls = 50
 
@@ -8,12 +10,13 @@ document_link_repo = FakeDocumentLinkRepository()
 def roll() -> None:
     for doc in document_repo.get_all():
         all_links = document_link_repo.get_docs_to(doc.id)
-        rank = doc.weight
+        weight = doc.weight
         
-        mapper(doc.id, (rank, all_links))
+        for doc_id, rank in mapper(doc.id, (weight, all_links)):
+            ...
 
 
-def mapper(doc_id, data):
+def mapper(doc_id, data) -> Iterator[int, float]:
     rank, ids = data
 
     yield doc_id, 0
