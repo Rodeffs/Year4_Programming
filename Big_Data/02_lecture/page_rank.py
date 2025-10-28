@@ -32,8 +32,11 @@ def mapper(doc_id, data) -> Iterator[int, float]:
             yield cur_doc.id, rank / len(all_docs)
 
 
-def reducer():
-    ...
+def reducer(doc_id, ranks):
+    all_docs = document_repo.get_all()
+    value = (1 - alpha) * sum(ranks) + alpha / len(all_docs)
+
+    return doc_id, value
 
 
 def main():
