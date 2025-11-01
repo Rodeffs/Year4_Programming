@@ -59,10 +59,9 @@ def main():
     q = 2
     prey_start = 100
     predator_start = 6
-    t_max = 1
 
-    print("Количество временных шагов")
-    t_count = int(input())
+    t_max = 1
+    t_count = 1000
 
     print("Параметр f:")
     f = float(input())
