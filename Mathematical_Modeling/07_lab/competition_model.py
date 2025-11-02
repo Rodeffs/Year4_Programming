@@ -39,52 +39,54 @@ def runge(r, f, q, a, predator_start, prey_start, t_count, t_max):
     return [t, prey, predator]
 
 
-def plot(t, prey, predator):
-    ax = plt.figure().add_subplot()
+def plot(t, prey, predator, r, f, q, a):
+    fig, axs = plt.subplots(1, 2)
+
+    # Число хищников и жертв в зависимости от времени
     
-    ax.plot(t, prey, color="b", label="Жертвы")
-    ax.plot(t, predator, color="r", label="Хищники")
-    ax.set_xlabel("t")
-    ax.set_ylabel("Число")
+    axs[0].plot(t, prey, color="b", label="Жертвы")
+    axs[0].plot(t, predator, color="r", label="Хищники")
+    axs[0].set_xlabel("t")
+    axs[0].set_ylabel("Число")
 
-    ax.legend()
-    ax.grid()
-    plt.show()
+    axs[0].legend(loc="upper right")
+    axs[0].grid()
 
+    x_min, x_max = np.min(predator), np.max(predator)
+    y_min, y_max = np.min(prey), np.max(prey)
 
-def plot_phase(prey, predator, r, f, q, a, t_count):
-    arrow_count = 10
-    arrow_length = 2
-    step = int(t_count/arrow_count)
+    X = np.linspace(0, x_max)
+    Y = np.linspace(0, y_max)
 
-    # Изоклины
+    X, Y = np.meshgrid(X, Y)
 
-    for i in range(0, t_count+step, step):
-        for j in range(0, t_count+step, step):
-            x, y = predator[j], prey[i]
+    U = predator_growth(f, q, a, X, Y)
+    V = prey_growth(r, a, X, Y)
 
-            angle = np.arctan(predator_growth(f, q, a, x, y)/prey_growth(r, a, x, y))
-            
-            print(angle)
+    # Направления на траекториях
 
-            dx = 0.5*arrow_length*np.cos(angle)
-            dy = 0.5*arrow_length*np.sin(angle)
+    axs[1].streamplot(X, Y, U, V, color="b")
+    
+    # Изоклины и особые точки
 
-            x0 = x - dx
-            y0 = y - dy
-            x1 = x + dx
-            y1 = y + dy
+    critical = [(0, 0), (r/a, q/(f*a))]
 
-            plt.annotate("", xy=(x1, y1), xytext=(x0, y0), arrowprops=dict(arrowstyle="->", color="k", lw=2))
+    axs[1].plot((0, x_max), (critical[0][1], critical[0][1]), color="k")
+    axs[1].plot((critical[0][0], critical[0][0]), (0, y_max), color="k")
+    axs[1].plot((0, x_max), (critical[1][1], critical[1][1]), color="k")
+    axs[1].plot((critical[1][0], critical[1][0]), (0, y_max), color="k")
 
-    plt.plot(predator, prey, color="g", label="Фазовая диаграмма")
+    axs[1].scatter(critical[0][0], critical[0][1], color="r")
+    axs[1].scatter(critical[1][0], critical[1][1], color="r")
 
-    plt.scatter(0, 0, color="r", label="Особая точка 1")
-    plt.scatter(r/a, q/(f*a), color="b", label="Особая точка 2")
+    # Фазовая диаграмма
 
-    plt.xlabel("Число хищников")
-    plt.ylabel("Число жертв")
-    plt.legend()
+    axs[1].plot(predator, prey, color="g", label="Фазовая диаграмма", lw=3)
+
+    axs[1].set_xlabel("Число хищников")
+    axs[1].set_ylabel("Число жертв")
+    axs[1].legend(loc="upper right")
+
     plt.show()
 
 
@@ -96,24 +98,14 @@ def main():
     predator_start = 6
 
     t_max = 1
-    t_count = 100
+    t_count = 1000
 
     print("Параметр f:")
     f = float(input())
 
     t, prey, predator = runge(r, f, q, a, predator_start, prey_start, t_count, t_max)
 
-    print("Что вывести? (1-2)\n1). График зависимости\n2). Фазовую диаграмму")
-    select = input()
-
-    if select == "1":
-        plot(t, prey, predator)
-
-    elif select == "2":
-        plot_phase(prey, predator, r, f, q, a, t_count)
-
-    else:
-        print("Нет такой опции")
+    plot(t, prey, predator, r, f, q, a)
 
 
 if __name__ == "__main__":
