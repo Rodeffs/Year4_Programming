@@ -74,7 +74,7 @@ def reducer(mat1, mat2):
             result_val = 0
 
             if left_row == left_total_rows and right_col == right_total_cols:
-                break
+                return
 
         else:
             i += 1
