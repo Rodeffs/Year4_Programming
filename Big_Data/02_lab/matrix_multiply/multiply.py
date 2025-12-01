@@ -16,17 +16,13 @@ def writer(filepath, mat):
 
         for elem in mat:
             if prev_row != elem[0] and prev_row is not None:
-                row += "\n"
-                f.write(row)
-                row = str(elem[2]) + " "
+                f.write(row + "\n")
+                row = ""
 
-            else:
-                row += str(elem[2]) + " "
-
+            row += str(elem[2]) + " "
             prev_row = elem[0]
 
-        row += "\n"
-        f.write(row)
+        f.write(row + "\n")
 
 
 def mapper(filepath):
@@ -40,17 +36,6 @@ def mapper(filepath):
             col += 1
 
         row += 1
-
-
-def shuffler(mat, mat_type):
-    if mat_type == "left":
-        return sorted(mat, key=lambda x: (x[0], x[1])) 
-
-    elif mat_type == "right":
-        return sorted(mat, key=lambda x: (x[1], x[0]))
-
-    else:
-        return mat
 
 
 def reducer(mat1, mat2):
@@ -71,7 +56,6 @@ def reducer(mat1, mat2):
         left_col = mat1[i][1]
         left_val = mat1[i][2]
         
-        right_row = mat2[j][0]
         right_col = mat2[j][1]
         right_val = mat2[j][2]
 
@@ -80,7 +64,7 @@ def reducer(mat1, mat2):
         if left_col == left_total_cols:
             if right_col < right_total_cols:
                 i -= (left_total_cols - 1)
-                j += 1
+                j = right_col
 
             else:
                 i += 1
@@ -94,7 +78,7 @@ def reducer(mat1, mat2):
 
         else:
             i += 1
-            j += 1
+            j += right_total_cols
 
 
 def main():
@@ -104,9 +88,6 @@ def main():
 
     mat1 = list(mapper(filepath1))
     mat2 = list(mapper(filepath2))
-
-    mat1 = shuffler(mat1, "left")
-    mat2 = shuffler(mat2, "right")
 
     mat_result = list(reducer(mat1, mat2))
     writer(filepath3, mat_result)
