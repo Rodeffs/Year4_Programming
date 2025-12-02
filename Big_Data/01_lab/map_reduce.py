@@ -30,12 +30,15 @@ final_filepath = "/home/owner/Downloads/Big_Data/final_stats.txt"
 
 
 def mapper(filepath):
+    filename = filepath.split("/")[-1]
+
     word_combination = 2  # считаем за темы пары слов больше 2
     map_value = 1
-    mapped = SortedList()
+    
+    print(filename, "MAP START")
 
-    with open(filepath, mode="r", encoding="utf-8") as file:
-        for line in file:
+    with open(filepath, mode="r", encoding="utf-8") as input_file, open(output_dir + filename, mode="w", encoding="utf-8") as output_file:
+        for line in input_file:
             for combination in regexp.split(line):
                 if combination is None:
                     continue
@@ -43,54 +46,69 @@ def mapper(filepath):
                 combination = combination.strip()
 
                 if len(wordexp.split(combination)) >= word_combination:
-                    mapped.add((combination, map_value))
+                    output_file.write(combination + ';' + str(map_value) + '\n')
 
-    return mapped
+    print(filename, "MAP END")
 
 
-def reducer(entries):
-    prev_comb = None
+def reducer(result):
+    prev_entry = None
     buffer = 0
+    reduced_result = SortedList()
 
-    for combination, value in entries:
-        if combination != prev_comb and prev_comb is not None:
-            yield prev_comb, buffer
+    for entry, value in result:
+        if entry != prev_entry and prev_entry is not None:
+            reduced_result.add((prev_entry, buffer))
             buffer = 0
 
-        prev_comb = combination
+        prev_entry = entry
         buffer += value
 
-    yield prev_comb, buffer
+    reduced_result.add((prev_entry, buffer))
 
+    return reduced_result
 
-def writer(filepath, entries):
-    with open(filepath, mode="w", encoding="utf-8") as file:
-        for combination, value in entries:
-            line = str(combination) + ";" + str(value) + "\n"
-            file.write(line)
-
-
-def worker(filepath):
-    filename = filepath.split("/")[-1]
-
-    print(filename, "MAP START")
-    entries = mapper(filepath)
-
-    print(filename, "MAP DONE, REDUCE START")
-    writer(output_dir + filename, reducer(entries))  # записываем в файлы, чтобы не хранить в памяти
-
-    print(filename, "REDUCE DONE")
-     
 
 def map_reduce():
-    files = [os.path.join(input_dir, file) for file in os.listdir(input_dir)]
+    input_files = [os.path.join(input_dir, file) for file in os.listdir(input_dir)]
+    output_files = [os.path.join(output_dir, file) for file in os.listdir(output_dir)]
+    result = SortedList()
 
-    with ThreadPoolExecutor(max_workers=16) as pool:  # разпараллеливаем
-        pool.map(worker, files)
+    # Parallel mapping
 
-#    files = [os.path.join(output_dir, file) for file in os.listdir(output_dir)]
+    with ThreadPoolExecutor(max_workers=16) as pool:
+        pool.map(mapper, input_files)
 
-#    writer(result)
+    # Sequential reducing
+
+    for filepath in output_files:
+        filename = filepath.split("/")[-1]
+
+        print(filename, "REDUCE START")
+
+        with open(filepath, mode="r", encoding="utf-8") as file:
+            for line in file:
+                entry, value = line.split(';')
+                result.add((entry, int(value)))
+
+        result = reducer(result)
+
+        print(filename, "REDUCE END")
+
+    print("SORTING THE FINAL RESULT")
+
+    final_result = SortedList()
+
+    for entry, value in result:
+        final_result.add((-value, entry))  # -value чтобы отсортировать в обратном порядке
+
+    print("SORTING DONE, WRITING")
+
+    with open(final_filepath, mode="w", encoding="utf-8") as file:
+        for value, entry in final_result:
+            file.write(entry + " : " + str(-value) + '\n')
+
+    print("WRITING DONE")
 
 
 def main():
