@@ -46,7 +46,7 @@ def mapper(filepath):
                 combination = combination.strip()
 
                 if len(wordexp.split(combination)) >= word_combination:
-                    output_file.write(combination + ';' + str(map_value) + '\n')
+                    output_file.write(combination + ';' + str(map_value) + '\n')  # чтобы не хранить всё это в оперативной памяти
 
     print(filename, "MAP END")
 
@@ -70,16 +70,18 @@ def reducer(result):
 
 
 def map_reduce():
-    input_files = [os.path.join(input_dir, file) for file in os.listdir(input_dir)]
-    output_files = [os.path.join(output_dir, file) for file in os.listdir(output_dir)]
     result = SortedList()
 
     # Parallel mapping
+
+    input_files = [os.path.join(input_dir, file) for file in os.listdir(input_dir)]
 
     with ThreadPoolExecutor(max_workers=16) as pool:
         pool.map(mapper, input_files)
 
     # Sequential reducing
+
+    output_files = [os.path.join(output_dir, file) for file in os.listdir(output_dir)]
 
     for filepath in output_files:
         filename = filepath.split("/")[-1]
