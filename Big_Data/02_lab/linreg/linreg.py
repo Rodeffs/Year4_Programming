@@ -1,3 +1,6 @@
+from time import time
+
+
 def reader(filepath):
     with open(filepath, mode="r", encoding="utf-8") as f:
         while True:
@@ -42,4 +45,6 @@ def main():
 
 
 if __name__ == "__main__":
+    start_time = time()
     main()
+    print("Execute time:", time() - start_time)
