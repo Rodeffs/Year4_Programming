@@ -76,7 +76,7 @@ def reducer(mat1, mat2):
                 j = 0
 
             yield left_row, right_col, result_val
-            print(f"Calculated value {count} out of {max_count}", end="\r")
+            print(f"Calculated value {count} out of {max_count} in the result matrix", end="\r")
             count += 1
             result_val = 0
 
@@ -92,8 +92,11 @@ def main():
     filepath1 = "mat1.txt"
     filepath2 = "mat2.txt"
     filepath3 = "result.txt"
-
+    
+    print("Mapping the left matrix")
     mat1 = list(mapper(filepath1))
+
+    print("Mapping the right matrix")
     mat2 = list(mapper(filepath2))
 
     writer(filepath3, reducer(mat1, mat2))
