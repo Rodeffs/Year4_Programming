@@ -75,7 +75,7 @@ def reducer(mat1, mat2):
                 i += 1
                 j = 0
 
-            yield left_row, right_col, result_val
+            yield left_row, right_col, round(result_val, 4)
             print(f"Calculated value {count} out of {max_count} in the result matrix", end="\r")
             count += 1
             result_val = 0
