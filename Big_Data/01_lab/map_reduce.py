@@ -6,7 +6,7 @@ from time import time
 def regular_expression():
     ignored_words = ["a", "an", "the", "and", "or", "as", "of", "in", "on", "yet", "our", "than", "then", "however", "at", "but", "was", "were", "which", "there", "this", "that", "thus", "we", "to", "for", "is", "are", "where", "have", "has", "been", "since", "with", "such", "another", "also", "by", "often", "can", "could", "so", "from", "its", "via", "will", "hence", "should", "would", "shall", "what", "although", "these", "those", "do", "does", "did", "under", "above", "else", "if", "while", "when", "who", "based", "way", "very", "many", "much", "due", "because", "onto", "into", "out", "finally", "their", "they", "may", "might", "up", "down", "either", "neither", "nor", "within", "according", "others", "about", "therefore", "no", "not", "towards", "beyond", "behind", "over", "how", "both", "without", "other", "another", "more", "most", "moreover", "be", "furthermore", "why", "paper", "focuses", "well", "must", "consider", "using", "used", "commonly", "some", "given", "among", "able", "present", "his", "her", "he", "she", "obtained", "makes", "give", "make", "further", "use", "introduce", "employ", "uses", "show", "allows", "gives", "introduces", "considers", "through", "take", "takes", "enable", "enables", "allow", "every", "each", "called", "provide", "provides", "cannot", "allowing", "even", "though", "after", "around", "upon", "you", "new"]
 
-    regexp = r"([^a-z^\s^'^-])|(?<![a-z])(['-])(?![a-z])|(?<![a-z-])(?:"
+    regexp = r"([^a-z^\s^'^-])|(?:^|[^a-z])['-]|['-](?:^|[^a-z])|'*(?<![a-z-])(?:"
 
     for i in range(len(ignored_words)):
         regexp += ignored_words[i]
@@ -15,7 +15,7 @@ def regular_expression():
             regexp += '|'
 
         else:
-            regexp += ")(?![a-z-])"
+            regexp += ")(?![a-z-])'*"
 
     return regexp
 
@@ -75,7 +75,7 @@ def map_reduce(filepath, chunksize):
 def main():
     # Dataset: https://www.kaggle.com/datasets/beta3logic/3m-academic-papers-titles-and-abstracts
 
-    filepath = "/home/owner/Education/Work/Big_Data/cleaned_papers.csv"
+    filepath = "/home/owner/Downloads/Big_Data/cleaned_papers.csv"
     result = map_reduce(filepath, 10000)
     result.to_csv("output.csv", sep=";", index=False)
 
