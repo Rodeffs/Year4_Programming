@@ -8,7 +8,7 @@ def main():
 
     df = pd.read_csv(df_input)
     i, j = 0, 0
-    max_lines = 100000
+    max_lines = 10000
     file = open(f"/home/owner/Downloads/Big_Data/datasets/dataset{j}.txt", mode="w", encoding="utf-8")
 
     for row in df.itertuples(index=False):

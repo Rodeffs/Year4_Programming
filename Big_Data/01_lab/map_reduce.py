@@ -1,4 +1,7 @@
 import re
+import os
+from sortedcontainers import SortedList  # чтобы в массив сразу вставлять отсортированно
+from concurrent.futures import ThreadPoolExecutor  # для многопоточности
 from time import time
 
 
@@ -18,86 +21,83 @@ def regular_expression():
 
     return regexp
 
-regexp = regular_expression()
+
+regexp = re.compile(regular_expression())  # прекомпиляция регулярного выражения для ускорения
+wordexp = re.compile(r"\s+")
+input_dir = "/home/owner/Downloads/Big_Data/datasets/"
+output_dir = "/home/owner/Downloads/Big_Data/output/"
+final_filepath = "/home/owner/Downloads/Big_Data/final_stats.txt"
 
 
-def mapper(line):
+def mapper(filepath):
     word_combination = 2  # считаем за темы пары слов больше 2
     map_value = 1
+    mapped = SortedList()
 
-    for combination in re.split(regexp, line):
-        if combination is None:
-            continue
+    with open(filepath, mode="r", encoding="utf-8") as file:
+        for line in file:
+            for combination in regexp.split(line):
+                if combination is None:
+                    continue
 
-        combination = combination.strip()
+                combination = combination.strip()
 
-        if len(re.split(r"\s+", combination)) >= word_combination:
-            yield combination, map_value
+                if len(wordexp.split(combination)) >= word_combination:
+                    mapped.add((combination, map_value))
+
+    return mapped
 
 
-def shuffler(entries):
-    sorted_entries = sorted(entries, key=lambda x: x[0])
+def reducer(entries):
     prev_comb = None
-    buffer = []
+    buffer = 0
 
     for combination, value in entries:
         if combination != prev_comb and prev_comb is not None:
             yield prev_comb, buffer
-            buffer = []
+            buffer = 0
 
         prev_comb = combination
-        buffer.append(value)
+        buffer += value
 
     yield prev_comb, buffer
-
-
-def reducer(entries):
-    for combination, values in entries:
-        yield combination, sum(values)
-
-
-def reader(filepath):
-    with open(filepath, mode="r", encoding="utf-8") as file:
-        for line in file:
-            yield line
 
 
 def writer(filepath, entries):
     with open(filepath, mode="w", encoding="utf-8") as file:
         for combination, value in entries:
-            line = combination + ": " + str(value) + "\n"
+            line = str(combination) + ";" + str(value) + "\n"
             file.write(line)
 
 
-def map_reduce(filepath):
-    mapped = []
-    lines_done = 1
+def worker(filepath):
+    filename = filepath.split("/")[-1]
 
-    print("Mapping")
-    for line in reader(filepath):
-        mapped += list(mapper(line))
-        print("Processed line", lines_done, end="\r")
-        lines_done += 1
+    print(filename, "MAP START")
+    entries = mapper(filepath)
 
-    print("\nShuffling")
-    shuffled = list(shuffler(mapped))
+    print(filename, "MAP DONE, REDUCE START")
+    writer(output_dir + filename, reducer(entries))  # записываем в файлы, чтобы не хранить в памяти
 
-    print("Reducing")
-    reduced = list(reducer(shuffled))
+    print(filename, "REDUCE DONE")
+     
 
-    print("Sorting")
-    final_result = sorted(reduced, key=lambda x: x[1])
+def map_reduce():
+    files = [os.path.join(input_dir, file) for file in os.listdir(input_dir)]
 
-    return final_result
+    with ThreadPoolExecutor(max_workers=16) as pool:  # разпараллеливаем
+        pool.map(worker, files)
+
+#    files = [os.path.join(output_dir, file) for file in os.listdir(output_dir)]
+
+#    writer(result)
 
 
 def main():
     # Dataset: https://www.kaggle.com/datasets/beta3logic/3m-academic-papers-titles-and-abstracts
-    # Use splitter.py first, otherwise this dataset is awfully formatted
+    # Use splitter.py first to split the dataset into smaller datasets for parallel mapping
 
-    filepath = "/home/owner/Downloads/Big_Data/dataset.txt"
-    result = map_reduce(filepath)
-    writer("output.txt", result)
+    map_reduce()
 
 
 if __name__ == "__main__":
