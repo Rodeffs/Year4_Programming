@@ -1,5 +1,4 @@
 import re
-import pandas as pd
 from time import time
 
 
@@ -19,65 +18,86 @@ def regular_expression():
 
     return regexp
 
-
 regexp = regular_expression()
-df_entry = "phrase"
-df_value = "value"
 
 
-def mapper(df):
-    entries, values = [], []
+def mapper(line):
     word_combination = 2  # считаем за темы пары слов больше 2
     map_value = 1
 
-    for index, row in df.iterrows():
-        line = re.sub(r"\s*\n\s*", ' ', row.iloc[0].lower())  # убрать переносы на след. строку, а lower() преобразует всё в нижний регистр
+    for combination in re.split(regexp, line):
+        if combination is None:
+            continue
 
-        for combination in re.split(regexp, line):
-            if combination is None:
-                continue
+        combination = combination.strip()
 
-            combination = combination.strip()
-
-            if len(re.split(r"\s+", combination)) >= word_combination:
-                entries.append(combination)
-                values.append(map_value)
-
-    return pd.DataFrame({df_entry: entries, df_value: values})
+        if len(re.split(r"\s+", combination)) >= word_combination:
+            yield combination, map_value
 
 
-def reducer(df):
-    return df.groupby([df_entry], as_index=False).sum()
+def shuffler(entries):
+    sorted_entries = sorted(entries, key=lambda x: x[0])
+    prev_comb = None
+    buffer = []
+
+    for combination, value in entries:
+        if combination != prev_comb and prev_comb is not None:
+            yield prev_comb, buffer
+            buffer = []
+
+        prev_comb = combination
+        buffer.append(value)
+
+    yield prev_comb, buffer
 
 
-def reader(filepath, chunksize):
-    with pd.read_csv(filepath, chunksize=chunksize) as chunks:  # читаем файл по несколько строчек за раз, чтобы не хранить всё в памяти
-        for chunk in chunks:
-            yield chunk
+def reducer(entries):
+    for combination, values in entries:
+        yield combination, sum(values)
 
 
-def map_reduce(filepath, chunksize):
-    final_result = pd.DataFrame({df_entry: pd.Series(dtype="str"), df_value: pd.Series(dtype="int")})
+def reader(filepath):
+    with open(filepath, mode="r", encoding="utf-8") as file:
+        for line in file:
+            yield line
 
-    chunks_done = 0
 
-    for chunk in reader(filepath, chunksize):
-        print("Chunks processed =", chunks_done, end="\r")
-        chunk_result = mapper(chunk)
-        final_result = pd.concat([final_result, chunk_result], ignore_index=True)
-        chunks_done += chunksize
+def writer(filepath, entries):
+    with open(filepath, mode="w", encoding="utf-8") as file:
+        for combination, value in entries:
+            line = combination + ": " + str(value) + "\n"
+            file.write(line)
 
-    print("\nMapping done, reducing...")
 
-    return reducer(final_result).sort_values(by=[df_value], ascending=False)
+def map_reduce(filepath):
+    mapped = []
+    lines_done = 1
+
+    print("Mapping")
+    for line in reader(filepath):
+        mapped += list(mapper(line))
+        print("Processed line", lines_done, end="\r")
+        lines_done += 1
+
+    print("\nShuffling")
+    shuffled = list(shuffler(mapped))
+
+    print("Reducing")
+    reduced = list(reducer(shuffled))
+
+    print("Sorting")
+    final_result = sorted(reduced, key=lambda x: x[1])
+
+    return final_result
 
 
 def main():
     # Dataset: https://www.kaggle.com/datasets/beta3logic/3m-academic-papers-titles-and-abstracts
+    # Use splitter.py first, otherwise this dataset is awfully formatted
 
-    filepath = "/home/owner/Downloads/Big_Data/cleaned_papers.csv"
-    result = map_reduce(filepath, 10000)
-    result.to_csv("output.csv", sep=";", index=False)
+    filepath = "/home/owner/Downloads/Big_Data/dataset.txt"
+    result = map_reduce(filepath)
+    writer("output.txt", result)
 
 
 if __name__ == "__main__":
