@@ -1,4 +1,6 @@
 from time import time
+import matplotlib.pyplot as plt
+import numpy as np
 
 
 def reader(filepath):
@@ -30,8 +32,16 @@ def reducer(points):
         sumX2 += x**2
         N += 1
 
+        plt.scatter(x, y, color="k")
+
     b1 = (N*sumXY - sumX*sumY)/(N*sumX2 - sumX**2)
     b0 = (sumY - b1*sumX)/N
+
+    X = np.arange(0, 20)
+
+    plt.plot(X, b0*X + b1)
+
+    plt.show()
 
     return b1, b0
 
@@ -40,8 +50,6 @@ def main():
     filepath = "xy.txt"
 
     b1, b0 = reducer(mapper(filepath))
-
-    print(f"Y = {b1}*X + {b0}")
 
 
 if __name__ == "__main__":
