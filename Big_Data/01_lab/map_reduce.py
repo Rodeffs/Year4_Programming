@@ -26,7 +26,6 @@ regexp = re.compile(regular_expression())  # прекомпиляция регу
 wordexp = re.compile(r"\s+")
 input_dir = "/home/owner/Downloads/Big_Data/datasets/"
 output_dir = "/home/owner/Downloads/Big_Data/output/"
-final_filepath = "/home/owner/Downloads/Big_Data/final_stats.txt"
 
 
 def mapper(filepath):
@@ -51,22 +50,26 @@ def mapper(filepath):
     print(filename, "MAP END")
 
 
-def reducer(result):
+def reducer(values):
     prev_entry = None
     buffer = 0
-    reduced_result = SortedList()
+    result = SortedList()
+    i = 0
 
-    for entry, value in result:
+    for entry, value in values:
+        i += 1
+        print(f"REDUCING {i} out of {len(result)}", end='\r')
+
         if entry != prev_entry and prev_entry is not None:
-            reduced_result.add((prev_entry, buffer))
+            result.add((-buffer, prev_entry))  # - здесь нужен, чтобы сортировалось в обратном порядке
             buffer = 0
 
         prev_entry = entry
         buffer += value
 
-    reduced_result.add((prev_entry, buffer))
+    result.add((-buffer, prev_entry))
 
-    return reduced_result
+    return result
 
 
 def map_reduce():
@@ -76,41 +79,37 @@ def map_reduce():
 
     input_files = [os.path.join(input_dir, file) for file in os.listdir(input_dir)]
 
-    with ThreadPoolExecutor(max_workers=16) as pool:
+    with ThreadPoolExecutor() as pool:
         pool.map(mapper, input_files)
 
-    # Sequential reducing
+    # Sequential shuffling
 
     output_files = [os.path.join(output_dir, file) for file in os.listdir(output_dir)]
+    i = 0
 
     for filepath in output_files:
-        filename = filepath.split("/")[-1]
-
-        print(filename, "REDUCE START")
+        i += 1
+        print(f"SHUFFLE {i} OUT OF {len(output_files)}", end='\r')
 
         with open(filepath, mode="r", encoding="utf-8") as file:
             for line in file:
                 entry, value = line.split(';')
                 result.add((entry, int(value)))
+    
+    # Reducer
 
-        result = reducer(result)
+    print()
+    result = reducer(result)
 
-        print(filename, "REDUCE END")
+    # Writing
 
-    print("SORTING THE FINAL RESULT")
+    i = 0
 
-    final_result = SortedList()
-
-    for entry, value in result:
-        final_result.add((-value, entry))  # -value чтобы отсортировать в обратном порядке
-
-    print("SORTING DONE, WRITING")
-
-    with open(final_filepath, mode="w", encoding="utf-8") as file:
-        for value, entry in final_result:
+    with open(output_dir + "final_result.txt", mode="w", encoding="utf-8") as file:
+        for value, entry in result:
+            i += 1
+            print(f"WRITING {i} OUT OF {len(result)}", end='\r')
             file.write(entry + " : " + str(-value) + '\n')
-
-    print("WRITING DONE")
 
 
 def main():
@@ -123,4 +122,4 @@ def main():
 if __name__ == "__main__":
     start_time = time()
     main()
-    print("Execute time:", time() - start_time)
+    print("\nExecute time:", time() - start_time)
