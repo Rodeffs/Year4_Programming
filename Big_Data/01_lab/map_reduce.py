@@ -1,6 +1,7 @@
 import re
 import os
 from sortedcontainers import SortedList  # чтобы в массив сразу вставлять отсортированно
+from collections import defaultdict
 from concurrent.futures import ThreadPoolExecutor  # для многопоточности
 from time import time
 
@@ -34,7 +35,7 @@ def mapper(filepath):
     word_combination = 2  # считаем за темы пары слов больше 2
     map_value = 1
     
-    print(filename, "MAP START")
+    print("MAPPING", filename)
 
     with open(filepath, mode="r", encoding="utf-8") as input_file, open(output_dir + filename, mode="w", encoding="utf-8") as output_file:
         for line in input_file:
@@ -46,8 +47,6 @@ def mapper(filepath):
 
                 if len(wordexp.split(combination)) >= word_combination:
                     output_file.write(combination + ';' + str(map_value) + '\n')  # чтобы не хранить всё это в оперативной памяти
-
-    print(filename, "MAP END")
 
 
 def reducer(values):
@@ -71,7 +70,7 @@ def reducer(values):
 
 
 def map_reduce():
-    result = SortedList()
+    result = defaultdict(int)  # чтобы не сортировать вечность
 
     # Parallel mapping
 
@@ -80,7 +79,7 @@ def map_reduce():
     with ThreadPoolExecutor() as pool:
         pool.map(mapper, input_files)
 
-    # Sequential reducing (VERY SLOW, NEED OPTIMISATION)
+    # Sequential reducing
 
     output_files = [os.path.join(output_dir, file) for file in os.listdir(output_dir)]
     i = 0
@@ -92,43 +91,18 @@ def map_reduce():
         with open(filepath, mode="r", encoding="utf-8") as file:
             for line in file:
                 entry, value = line.split(';')
-                result.add((entry, int(value)))
+                result[entry] += int(value)
 
-        result = reducer(result)
-
-    result = reducer(result)
-
-    # Sorting
-
-    print()
-    final_result = SortedList()
-    i = 1
-    N = len(result)
-    
-    while True:
-        entry, value = result.pop()
-        print(f"SORTING {i} OUT OF {N}", end='\r')
-        final_result.add((-value, entry))  # минус нужен, чтобы сортировалось в обратном порядке
-        i += 1
-
-        if len(result) == 0:
-            break
-
-    # Writing
-
-    print()
-    i = 1
-    N = len(final_result)
+    print("\nSORTING")
+    result = sorted(result.items(), key=lambda x: x[1], reverse=True)
+    i = 0
 
     with open(output_dir + "final_result.txt", mode="w", encoding="utf-8") as file:
-        while True:
-            value, entry = final_result.pop()
-            print(f"WRITING {i} OUT OF {N}", end='\r')
-            file.write(entry + ";" + str(-value) + '\n')
+        for entry, value in result:
             i += 1
+            print(f"WRITING {i} OUT OF {len(result)}", end='\r')
+            file.write(entry + ";" + str(value) + '\n')
 
-            if len(final_result) == 0:
-                break
 
 
 def main():
