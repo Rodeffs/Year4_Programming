@@ -54,22 +54,20 @@ def reducer(values):
     prev_entry = None
     buffer = 0
     result = SortedList()
-    i = 0
 
-    for entry, value in values:
-        i += 1
-        print(f"REDUCING {i} out of {len(result)}", end='\r')
+    while True:
+        entry, value = values.pop()  # чтобы не забивать лишнюю память
 
         if entry != prev_entry and prev_entry is not None:
-            result.add((-buffer, prev_entry))  # - здесь нужен, чтобы сортировалось в обратном порядке
+            result.add((prev_entry, buffer))
             buffer = 0
 
         prev_entry = entry
         buffer += value
 
-    result.add((-buffer, prev_entry))
-
-    return result
+        if len(values) == 0:
+            result.add((prev_entry, buffer))
+            return result
 
 
 def map_reduce():
@@ -77,39 +75,60 @@ def map_reduce():
 
     # Parallel mapping
 
-    input_files = [os.path.join(input_dir, file) for file in os.listdir(input_dir)]
+#    input_files = [os.path.join(input_dir, file) for file in os.listdir(input_dir)]
 
-    with ThreadPoolExecutor() as pool:
-        pool.map(mapper, input_files)
+#    with ThreadPoolExecutor() as pool:
+#        pool.map(mapper, input_files)
 
-    # Sequential shuffling
+    # Sequential reducing
 
     output_files = [os.path.join(output_dir, file) for file in os.listdir(output_dir)]
     i = 0
 
     for filepath in output_files:
         i += 1
-        print(f"SHUFFLE {i} OUT OF {len(output_files)}", end='\r')
+        print(f"REDUCING {i} OUT OF {len(output_files)}", end='\r')
 
         with open(filepath, mode="r", encoding="utf-8") as file:
             for line in file:
                 entry, value = line.split(';')
                 result.add((entry, int(value)))
-    
-    # Reducer
+
+        result = reducer(result)
+
+    result = reducer(result)
+
+    # Sorting
 
     print()
-    result = reducer(result)
+    final_result = SortedList()
+    i = 1
+    N = len(result)
+    
+    while True:
+        entry, value = result.pop()
+        print(f"SORTING {i} OUT OF {N}", end='\r')
+        final_result.add((-value, entry))  # минус нужен, чтобы сортировалось в обратном порядке
+        i += 1
+
+        if len(result) == 0:
+            break
 
     # Writing
 
-    i = 0
+    print()
+    i = 1
+    N = len(final_result)
 
     with open(output_dir + "final_result.txt", mode="w", encoding="utf-8") as file:
-        for value, entry in result:
+        while True:
+            value, entry = final_result.pop()
+            print(f"WRITING {i} OUT OF {N}", end='\r')
+            file.write(entry + ";" + str(-value) + '\n')
             i += 1
-            print(f"WRITING {i} OUT OF {len(result)}", end='\r')
-            file.write(entry + " : " + str(-value) + '\n')
+
+            if len(final_result) == 0:
+                break
 
 
 def main():
