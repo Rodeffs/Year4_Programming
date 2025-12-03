@@ -1,6 +1,5 @@
 import re
 import os
-from sortedcontainers import SortedList  # чтобы в массив сразу вставлять отсортированно
 from collections import defaultdict
 from concurrent.futures import ThreadPoolExecutor  # для многопоточности
 from time import time
@@ -27,6 +26,7 @@ regexp = re.compile(regular_expression())  # прекомпиляция регу
 wordexp = re.compile(r"\s+")
 input_dir = "/home/owner/Downloads/Big_Data/datasets/"
 output_dir = "/home/owner/Downloads/Big_Data/output/"
+result_filepath = "/home/owner/Downloads/Big_Data/final_result.txt"
 
 
 def mapper(filepath):
@@ -49,26 +49,6 @@ def mapper(filepath):
                     output_file.write(combination + ';' + str(map_value) + '\n')  # чтобы не хранить всё это в оперативной памяти
 
 
-def reducer(values):
-    prev_entry = None
-    buffer = 0
-    result = SortedList()
-
-    while True:
-        entry, value = values.pop()  # чтобы не забивать лишнюю память
-
-        if entry != prev_entry and prev_entry is not None:
-            result.add((prev_entry, buffer))
-            buffer = 0
-
-        prev_entry = entry
-        buffer += value
-
-        if len(values) == 0:
-            result.add((prev_entry, buffer))
-            return result
-
-
 def map_reduce():
     result = defaultdict(int)  # чтобы не сортировать вечность
 
@@ -79,7 +59,7 @@ def map_reduce():
     with ThreadPoolExecutor() as pool:
         pool.map(mapper, input_files)
 
-    # Sequential reducing
+    # Reducing
 
     output_files = [os.path.join(output_dir, file) for file in os.listdir(output_dir)]
     i = 0
@@ -97,12 +77,11 @@ def map_reduce():
     result = sorted(result.items(), key=lambda x: x[1], reverse=True)
     i = 0
 
-    with open(output_dir + "final_result.txt", mode="w", encoding="utf-8") as file:
+    with open(result_filepath, mode="w", encoding="utf-8") as file:
         for entry, value in result:
             i += 1
             print(f"WRITING {i} OUT OF {len(result)}", end='\r')
             file.write(entry + ";" + str(value) + '\n')
-
 
 
 def main():
