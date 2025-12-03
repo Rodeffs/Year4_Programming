@@ -75,12 +75,12 @@ def map_reduce():
 
     # Parallel mapping
 
-#    input_files = [os.path.join(input_dir, file) for file in os.listdir(input_dir)]
+    input_files = [os.path.join(input_dir, file) for file in os.listdir(input_dir)]
 
-#    with ThreadPoolExecutor() as pool:
-#        pool.map(mapper, input_files)
+    with ThreadPoolExecutor() as pool:
+        pool.map(mapper, input_files)
 
-    # Sequential reducing
+    # Sequential reducing (VERY SLOW, NEED OPTIMISATION)
 
     output_files = [os.path.join(output_dir, file) for file in os.listdir(output_dir)]
     i = 0
