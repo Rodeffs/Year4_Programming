@@ -24,8 +24,8 @@ def regular_expression():
 
 regexp = re.compile(regular_expression())  # прекомпиляция регулярного выражения для ускорения
 wordexp = re.compile(r"\s+")
-input_dir = "/home/owner/Downloads/Big_Data/datasets/"
-output_dir = "/home/owner/Downloads/Big_Data/output/"
+input_dir = "/home/owner/Downloads/Big_Data/split/"
+output_dir = "/home/owner/Downloads/Big_Data/mapped/"
 result_filepath = "/home/owner/Downloads/Big_Data/final_result.txt"
 
 

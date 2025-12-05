@@ -9,7 +9,7 @@ def main():
     df = pd.read_csv(df_input)
     i, j = 0, 0
     max_lines = 10000
-    file = open(f"/home/owner/Downloads/Big_Data/datasets/dataset{j}.txt", mode="w", encoding="utf-8")
+    file = open(f"/home/owner/Downloads/Big_Data/split/dataset{j}.txt", mode="w", encoding="utf-8")
 
     for row in df.itertuples(index=False):
         line = str(row.title + ". " + row.abstract).lower()  # объединить оба столбца и перевести в нижний регистр
@@ -23,7 +23,7 @@ def main():
             j += 1
 
             print(f"Processed {max_lines*j} lines", end="\r")
-            file = open(f"/home/owner/Downloads/Big_Data/datasets/dataset{j}.txt", mode="w", encoding="utf-8")
+            file = open(f"/home/owner/Downloads/Big_Data/split/dataset{j}.txt", mode="w", encoding="utf-8")
 
     file.close()
 
