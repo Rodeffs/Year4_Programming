@@ -53,11 +53,7 @@ def main():
 
     tf_idf(doc_repo, word_repo, pl_repo, approach)  # выполняем tf-idf
 
-    print("После tf_idf")
-
-    print("\nDocs:")
-    for doc in doc_repo.get_all():
-        print(doc)
+    print("\nПосле tf_idf")
 
     print("\nWords:")
     for word in word_repo.get_all():
@@ -66,10 +62,6 @@ def main():
     print("\nPosting lists:")
     for pl in pl_repo.get_all():
         print(pl)
-
-    print("\nDoc links:")
-    for link in doc_link_repo.get_all():
-        print(link)
 
 
 if __name__ == "__main__":
