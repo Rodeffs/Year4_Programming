@@ -2,6 +2,7 @@ from argparse import ArgumentParser
 
 from repos import DocRepo, PLRepo, WordRepo, DocLinkRepo
 from fill_repos import fill_repos
+from tf_idf import tf_idf
 
 
 def main():
@@ -27,6 +28,32 @@ def main():
     doc_link_repo = DocLinkRepo()
 
     fill_repos(doc_repo, word_repo, pl_repo, doc_link_repo, args.query, args.urls)  # заполняем наши репозитории
+
+    if args.daat:  # выбираем подход для tf-idf
+        approach = "daat"  # document-at-a-time
+
+    else:
+        approach = "taat"  # term-at-a-time
+
+    print("\nDocs:")
+    for doc in doc_repo.get_all():
+        print(doc)
+
+    print("\nWords:")
+    for word in word_repo.get_all():
+        print(word)
+
+    print("\nPosting lists:")
+    for pl in pl_repo.get_all():
+        print(pl)
+
+    print("\nDoc links:")
+    for link in doc_link_repo.get_all():
+        print(link)
+
+    tf_idf(doc_repo, word_repo, pl_repo, approach)  # выполняем tf-idf
+
+    print("После tf_idf")
 
     print("\nDocs:")
     for doc in doc_repo.get_all():

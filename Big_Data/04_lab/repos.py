@@ -55,24 +55,31 @@ class DocRepo:
 
 class PLRepo:
     def __init__(self) -> None:
-        self.data = []
+        self.__data = []
 
     def get_all(self) -> Iterable[PL]:  # вернуть все posting list
-        for entry in self.data:
+        for entry in self.__data:
             yield entry
 
     def get_doc_id(self, doc_id) -> Iterable[PL]:  # вернуть все posting list, где есть ссылка на этот документ
-        for entry in self.data:
+        for entry in self.__data:
             if entry.doc_id == doc_id:
                 yield entry
 
     def get_word_id(self, word_id) -> Iterable[PL]:  # вернуть все posting list, где есть ссылка на это слово
-        for entry in self.data:
+        for entry in self.__data:
             if entry.word_id == word_id:
                 yield entry
 
+    def get_both_id(self, word_id, doc_id) -> PL | None:  # вернуть posting list с этим словом и документом
+        for entry in self.__data:
+            if entry.word_id == word_id and entry.doc_id == doc_id:
+                return entry
+
+        return None
+
     def add(self, pl) -> None:  # добавить posting list
-        self.data.append(pl)
+        self.__data.append(pl)
 
 
 class WordRepo:

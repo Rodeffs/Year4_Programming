@@ -23,7 +23,6 @@ def fill_repos(doc_repo, word_repo, pl_repo, doc_link_repo, query, urls):  # з�
         doc_repo.add(new_doc)
 
         try:
-            print("Getting response from", url)
             response = requests.get(url, headers=headers)
 
         except Exception:
@@ -33,25 +32,20 @@ def fill_repos(doc_repo, word_repo, pl_repo, doc_link_repo, query, urls):  # з�
         soup = BeautifulSoup(content, "lxml")  # lxml - библиотека в python, переводящая HTML в дерево элементов
         text = soup.get_text(separator=' ')  # сепаратор пробел обеспечит то, что слова не будут слипаться
         words = re.findall(r"\b\w+\b", text)  # регулярное выражение для вывода всех слов
+        new_doc.length = len(words)  # кол-во слов в документе
 
-        for word in words:
+        for query_word in word_repo.get_all():  # добавляем связь слово-документ для всех слов в запросе
+            new_pl = PL(query_word.word_id, new_doc.doc_id) 
+            pl_repo.add(new_pl)
+
+        for word in words:  # теперь пробегаемся по всем словам и если это слово было в запросе, то увеличиваем счётчик
             word = word.lower()  # не обращаем внимание на регистр
             word_in_repo = word_repo.get_by_word(word)  # находим это слово в репозитории
 
             if word_in_repo is None:  # если этого слова не было в запросе, то тогда ничего не делаем
                 continue
-            
-            already_in = False
 
-            for pl in pl_repo.get_word_id(word_in_repo.word_id):  # смотрим, если уже есть такая связь слово-документ, и если да, то увеличиваем кол-во вхождений
-                if pl.doc_id == new_doc.doc_id:
-                    pl.count += 1
-                    already_in = True
-                    break
-
-            if not already_in:
-                new_pl = PL(word_in_repo.word_id, new_doc.doc_id)  # если же такой связи ещё не было, то добавляем её
-                pl_repo.add(new_pl)
+            pl_repo.get_both_id(word_in_repo.word_id, new_doc.doc_id).count += 1  # если же оно было, то счётчик увеличиваем на 1
 
         links = [a["href"] for a in soup.find_all('a', href=True)]  # получаем все ссылки на этом сайте
         site_links.append([new_doc, links])
