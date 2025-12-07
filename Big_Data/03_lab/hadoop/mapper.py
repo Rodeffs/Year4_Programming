@@ -13,4 +13,4 @@ for line in sys.stdin:
         combination = combination.strip()
 
         if len(re.split(r"\s+", combination)) >= 2: # считаем за темы пары слов больше 2
-            print(combination + ";1")
+            print(combination + ",1")

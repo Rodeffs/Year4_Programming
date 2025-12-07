@@ -18,7 +18,7 @@ with DAG(dag_id="popular-topics-hadoop", start_date=datetime(2025, 12, 6), sched
 
     hadoop_mapreduce = BashOperator(task_id="hadoop-mapreduce", bash_command=f"{HADOOP_HOME}/bin/hadoop jar {HADOOP_STREAMING} -input {INPUT_DIR} -output {OUTPUT_DIR} -mapper 'python {SOURCE_DIR}/mapper.py' -reducer 'python {SOURCE_DIR}/reducer.py'")
 
-    sort_results = BashOperator(task_id="sorting-results", bash_command=f"{HADOOP_HOME}/bin/hdfs dfs -cat {OUTPUT_DIR}/part-* | sort -t';' -k2,2nr > {RESULT_FILE}")
+    sort_results = BashOperator(task_id="sorting-results", bash_command=f"{HADOOP_HOME}/bin/hdfs dfs -cat {OUTPUT_DIR}/part-* | sort -t',' -k2,2nr > {RESULT_FILE}")
 
     cleanup = BashOperator(task_id="cleaning-up", bash_command=f"rm -rf {OUTPUT_DIR} {INPUT_DIR}")
 

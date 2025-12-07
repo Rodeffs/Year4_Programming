@@ -46,7 +46,7 @@ def mapper(filepath):
                 combination = combination.strip()
 
                 if len(wordexp.split(combination)) >= word_combination:
-                    output_file.write(combination + ';' + str(map_value) + '\n')  # чтобы не хранить всё это в оперативной памяти
+                    output_file.write(combination + ',' + str(map_value) + '\n')  # чтобы не хранить всё это в оперативной памяти
 
 
 def map_reduce():
@@ -70,7 +70,7 @@ def map_reduce():
 
         with open(filepath, mode="r", encoding="utf-8") as file:
             for line in file:
-                entry, value = line.split(';')
+                entry, value = line.split(',')
                 result[entry] += int(value)
 
     print("\nSORTING")
@@ -81,7 +81,7 @@ def map_reduce():
         for entry, value in result:
             i += 1
             print(f"WRITING {i} OUT OF {len(result)}", end='\r')
-            file.write(entry + ";" + str(value) + '\n')
+            file.write(entry + "," + str(value) + '\n')
 
 
 def main():

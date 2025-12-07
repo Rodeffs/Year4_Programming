@@ -7,7 +7,7 @@ result = 0
 
 for line in sys.stdin:
     line = line.strip()
-    entry, value = line.split(';')
+    entry, value = line.split(',')
 
     # Проверки, что вводимые данные можно преобразовать
 
@@ -22,7 +22,7 @@ for line in sys.stdin:
     # Т.к. Hadoop по умолчанию сортирует вывод mapper, то можно сделать так
 
     if prev_entry != entry and prev_entry is not None:
-        print(f"{prev_entry};{result}")
+        print(f"{prev_entry},{result}")
         result = 0
 
     prev_entry = entry
