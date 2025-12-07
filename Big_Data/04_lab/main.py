@@ -26,7 +26,7 @@ def main():
     pl_repo = PLRepo()
     doc_link_repo = DocLinkRepo()
 
-    fill_repos(doc_repo, word_repo, pl_repo, doc_link_repo, args.query, args.urls)
+    fill_repos(doc_repo, word_repo, pl_repo, doc_link_repo, args.query, args.urls)  # заполняем наши репозитории
 
     print("\nDocs:")
     for doc in doc_repo.get_all():

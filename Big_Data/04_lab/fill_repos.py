@@ -27,7 +27,7 @@ def fill_repos(doc_repo, word_repo, pl_repo, doc_link_repo, query, urls):  # з�
             response = requests.get(url, headers=headers)
 
         except Exception:
-            raise(RuntimeError(f"Error, could not get response from {url}, reason: {Exception}"))
+            raise(RuntimeError("Error, could not get response from", url))
 
         content = response.text  # получаем файлы в формате HTML
         soup = BeautifulSoup(content, "lxml")  # lxml - библиотека в python, переводящая HTML в дерево элементов
