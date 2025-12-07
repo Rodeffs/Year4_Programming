@@ -41,7 +41,7 @@ def main():
 
     df = df.groupBy("entry").agg(F.sum("value").alias("total")).orderBy("total", ascending=False)
 
-    df.write.text("/home/owner/Downloads/Big_Data/spark_output")
+    df.write.csv("/home/owner/Downloads/Big_Data/spark_output")
 
 
 if __name__ == "__main__":
