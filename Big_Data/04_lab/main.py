@@ -5,7 +5,14 @@ from fill_repos import fill_repos
 
 
 def main():
-    default_urls = []
+    default_urls = [
+            "https://en.wikipedia.org/wiki/Python_(programming_language)",
+            "https://www.python.org/",
+            "https://en.wikipedia.org/wiki/High-level_programming_language",
+            "https://en.wikipedia.org/wiki/Machine_learning",
+            "https://github.com/python/pythondotorg/issues",
+            "https://github.com/"
+            ]
 
     parser = ArgumentParser()
     parser.add_argument("query", nargs='+', help="the search query, at least one word must be entered")
@@ -21,7 +28,21 @@ def main():
 
     fill_repos(doc_repo, word_repo, pl_repo, doc_link_repo, args.query, args.urls)
 
-    print("Repos are now filled")
+    print("\nDocs:")
+    for doc in doc_repo.get_all():
+        print(doc)
+
+    print("\nWords:")
+    for word in word_repo.get_all():
+        print(word)
+
+    print("\nPosting lists:")
+    for pl in pl_repo.get_all():
+        print(pl)
+
+    print("\nDoc links:")
+    for link in doc_link_repo.get_all():
+        print(link)
 
 
 if __name__ == "__main__":

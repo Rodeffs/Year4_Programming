@@ -23,12 +23,6 @@ class DocLinkRepo:
     def add(self, from_id, to_id) -> None:  # добавить ссылку
         self.__data.append((from_id, to_id))
 
-    def remove(self, from_id, to_id) -> None:  # удалить ссылку
-        for entry in self.__data:
-            if entry[0] == from_id and entry[1] == to_id:
-                self.__data.remove(entry)
-                return
-
 
 class DocRepo:
     def __init__(self) -> None:
@@ -58,13 +52,6 @@ class DocRepo:
         doc.doc_id = self.__last_id  # автоматически задаём id документу
         self.__data.append(doc)
 
-    def remove(self, doc) -> None:  # удалить документ
-        try:
-            self.__data.remove(doc)
-
-        except ValueError:  # если такого документа нет, то ничего не делать
-            return
-
 
 class PLRepo:
     def __init__(self) -> None:
@@ -86,13 +73,6 @@ class PLRepo:
 
     def add(self, pl) -> None:  # добавить posting list
         self.data.append(pl)
-
-    def remove(self, pl) -> None:  # удалить posting list
-        try:
-            self.data.remove(pl)
-
-        except ValueError:  # если такого posting list нет, то ничего не делать
-            return
 
 
 class WordRepo:
@@ -123,9 +103,3 @@ class WordRepo:
         word.word_id = self.__last_id  # автоматически задаём id слову
         self.__data.append(word)
 
-    def remove(self, word) -> None:  # удалить слово
-        try:
-            self.__data.remove(word)
-
-        except ValueError:  # если такого слова нет, то ничего не делать
-            return

@@ -6,26 +6,25 @@ from data import Doc, Word, PL
 
 
 def fill_repos(doc_repo, word_repo, pl_repo, doc_link_repo, query, urls):  # заполнить все репозитории исходя из запросов
-    print("Filling the word repo")
-
     for word in query:  # нас интересуют только те слова, которые были в запросе
         new_word = Word(word)
         word_repo.add(new_word)
 
     # Работа с парсингом HTML
 
-    print("Filling the document and posting list repos")
-
     inital_weight = 1/len(urls)  # изначальный вес документов
+
+    headers = {"User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/136.0.7103.48 Safari/537.36"}  # чтобы сайты не отклоняли запросы
 
     site_links = []  # временно храним все ссылки на сайты, потом уберём те, которые не ссылаются на наши сайты
 
     for url in urls:
         new_doc = Doc(url, inital_weight)
         doc_repo.add(new_doc)
-        
+
         try:
-            response = requests.get(url)
+            print("Getting response from", url)
+            response = requests.get(url, headers=headers)
 
         except Exception:
             raise(RuntimeError(f"Error, could not get response from {url}, reason: {Exception}"))
@@ -57,9 +56,8 @@ def fill_repos(doc_repo, word_repo, pl_repo, doc_link_repo, query, urls):  # з�
         links = [a["href"] for a in soup.find_all('a', href=True)]  # получаем все ссылки на этом сайте
         site_links.append([new_doc, links])
 
-    print("Filling the document links repo")
-
     for cur_doc, links in site_links:
+
         for link in links:
             if link == cur_doc.url:  # ссылки сами на себя не считаются
                 continue
