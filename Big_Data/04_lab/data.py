@@ -7,10 +7,11 @@ class Doc:
     url: str
     weight: float
     length: int = field(init=False, default=0)  # сколько всего слов в документе
+    links: int = field(init=False, default=0)  # сколько всего внешних ссылок в документе
 
 
 @dataclass
-class PL:  # Posting List (PL) это своего рода таблица связей слово-документ, где к каждому слову есть ссылка на документы, где оно встрачается и сколько раз
+class PL:  # Posting List (PL) это своего рода таблица связей слово-документ, где к каждому слову есть ссылка на документы, где оно встрачается и сколько раз. Здесь же и будет считаться tf и tf-idf
     word_id: int
     doc_id: int
     count: int = field(init=False, default=0)  # сколько раз слово встретилось в документе

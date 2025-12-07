@@ -47,25 +47,31 @@ def fill_repos(doc_repo, word_repo, pl_repo, doc_link_repo, query, urls):  # з�
 
             pl_repo.get_both_id(word_in_repo.word_id, new_doc.doc_id).count += 1  # если же оно было, то счётчик увеличиваем на 1
 
-        links = [a["href"] for a in soup.find_all('a', href=True)]  # получаем все ссылки на этом сайте
-        site_links.append([new_doc, links])
+        external_links = []
+
+        for a in soup.find_all('a', href=True):  # получаем все ссылки на этом сайте
+            link = str(a["href"])
+
+            if link.startswith("http") and link != new_doc.url:  # нас интересуют только внешние ссылки
+                external_links.append(link)
+
+        new_doc.links = len(external_links)  # количество всех внешних ссылок на сайте
+        site_links.append([new_doc, external_links])
 
     for cur_doc, links in site_links:
-
         for link in links:
-            if link == cur_doc.url:  # ссылки сами на себя не считаются
+            doc_in_repo = doc_repo.get_by_url(link)  # смотрим, есть ли сайт, на который идёт ссылка среди исследуемых сайтов
+
+            if doc_in_repo is None:  # если нет, то ничего не делаем
                 continue
 
-            doc_in_repo = doc_repo.get_by_url(link)
+            already_in = False
 
-            if doc_in_repo is not None:
-                already_in = False
+            for from_id in doc_link_repo.get_id_to(doc_in_repo.doc_id):  # смотрим, если эта ссылка уже была учтена, и если это так, то не добавляем
+                if from_id == cur_doc.doc_id:
+                    already_in = True
+                    break
 
-                for from_id in doc_link_repo.get_id_to(doc_in_repo.doc_id):  # смотрим, если эта ссылка уже была учтена, и если это так, то не добавляем
-                    if from_id == cur_doc.doc_id:
-                        already_in = True
-                        break
-
-                if not already_in:
-                    doc_link_repo.add(cur_doc.doc_id, doc_in_repo.doc_id)
+            if not already_in:
+                doc_link_repo.add(cur_doc.doc_id, doc_in_repo.doc_id)
 
