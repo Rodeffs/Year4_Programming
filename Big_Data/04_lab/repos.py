@@ -1,27 +1,27 @@
 from typing import Iterable
-from data import Doc, Word, PL
+from data import Doc, Word, PL, DocLink
 
 
 class DocLinkRepo:
     def __init__(self) -> None:
         self.__data = []
 
-    def get_all(self) -> Iterable[tuple]:  # вернуть все ссылки между документами
+    def get_all(self) -> Iterable[DocLink]:  # вернуть все ссылки между документами
         for entry in self.__data:
             yield entry
 
-    def get_id_from(self, doc_id) -> Iterable[int]:  # вернуть id документов, на которые ссылается этот документ
-        for from_id, to_id in self.__data:
-            if from_id == doc_id:
-                yield to_id
+    def get_id_from(self, doc_id) -> Iterable[DocLink]:  # вернуть id документов, на которые ссылается этот документ
+        for entry in self.__data:
+            if entry.doc_from_id == doc_id:
+                yield entry
 
-    def get_id_to(self, doc_id) -> Iterable[int]:  # вернуть id документов, ссылающихся на этот документ
-        for from_id, to_id in self.__data:
-            if to_id == doc_id:
-                yield from_id
+    def get_id_to(self, doc_id) -> Iterable[DocLink]:  # вернуть id документов, ссылающихся на этот документ
+        for entry in self.__data:
+            if entry.doc_to_id == doc_id:
+                yield entry
 
-    def add(self, from_id, to_id) -> None:  # добавить ссылку
-        self.__data.append((from_id, to_id))
+    def add(self, doc_link) -> None:  # добавить ссылку
+        self.__data.append(doc_link)
 
 
 class DocRepo:

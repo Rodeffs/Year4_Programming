@@ -25,3 +25,9 @@ class Word:
     word_id: int = field(init=False, default=-1)  # репозиторий сам будет задавать id, так что по дефолту он -1
     word_str: str
     doc_count: int = field(init=False, default=0)  # кол-во документов, в которых встретилось это слово
+
+
+@dataclass
+class DocLink:
+    doc_from_id: int
+    doc_to_id: int

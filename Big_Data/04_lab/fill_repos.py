@@ -2,7 +2,7 @@ import requests
 import re
 from bs4 import BeautifulSoup  # для парсинга HTML
 
-from data import Doc, Word, PL
+from data import Doc, Word, PL, DocLink
 
 
 def fill_repos(doc_repo, word_repo, pl_repo, doc_link_repo, query, urls):  # заполнить все репозитории исходя из запросов
@@ -67,11 +67,12 @@ def fill_repos(doc_repo, word_repo, pl_repo, doc_link_repo, query, urls):  # з�
 
             already_in = False
 
-            for from_id in doc_link_repo.get_id_to(doc_in_repo.doc_id):  # смотрим, если эта ссылка уже была учтена, и если это так, то не добавляем
-                if from_id == cur_doc.doc_id:
+            for entry in doc_link_repo.get_id_to(doc_in_repo.doc_id):  # смотрим, если эта ссылка уже была учтена, и если это так, то не добавляем
+                if entry.doc_from_id == cur_doc.doc_id:
                     already_in = True
                     break
 
             if not already_in:
-                doc_link_repo.add(cur_doc.doc_id, doc_in_repo.doc_id)
+                new_link = DocLink(cur_doc.doc_id, doc_in_repo.doc_id)
+                doc_link_repo.add(new_link)
 
