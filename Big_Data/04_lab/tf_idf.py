@@ -20,8 +20,12 @@ def tf_idf(doc_repo, word_repo, pl_repo, approach):
                 pl.tf = pl.count / doc.length
 
             for pl in pl_repo.get_word_id(word.word_id):
-                idf = log(len(all_docs) / word.doc_count)  # сразу считаем idf
-                pl.tf_idf = pl.tf * idf
+                if word.doc_count == 0:
+                    pl.tf_idf = 0
+
+                else:
+                    idf = log(len(all_docs) / word.doc_count)  # сразу считаем idf
+                    pl.tf_idf = pl.tf * idf
 
 
     elif approach == "daat":
@@ -35,7 +39,13 @@ def tf_idf(doc_repo, word_repo, pl_repo, approach):
                 pl.tf = pl.count / doc.length
 
         for pl in pl_repo.get_all():
-            idf = log(len(all_docs) / word_repo.get_by_id(pl.word_id).doc_count)   # сразу посчитать idf не можем
-            pl.tf_idf = pl.tf * idf
+            doc_count = word_repo.get_by_id(pl.word_id).doc_count
+
+            if doc_count == 0:
+                pl.tf_idf = 0
+
+            else:
+                idf = log(len(all_docs) / doc_count)   # сразу посчитать idf не можем
+                pl.tf_idf = pl.tf * idf
 
 

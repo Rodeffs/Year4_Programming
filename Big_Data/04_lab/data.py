@@ -17,6 +17,7 @@ class PL:  # Posting List (PL) это своего рода таблица св�
     count: int = field(init=False, default=0)  # сколько раз слово встретилось в документе
     tf: float = field(init=False, default=0.0)
     tf_idf: float = field(init=False, default=0.0)
+    final_rank: float = field(init=False, default=0.0)  # конечный рейтинг, определится page_rank * tf_idf
 
 
 @dataclass
