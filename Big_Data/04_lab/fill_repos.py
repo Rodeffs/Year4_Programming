@@ -23,6 +23,7 @@ def fill_repos(doc_repo, word_repo, pl_repo, doc_link_repo, query, urls):  # з�
         doc_repo.add(new_doc)
 
         try:
+            print("Getting response from", url)
             response = requests.get(url, headers=headers)
 
         except Exception:
@@ -57,6 +58,8 @@ def fill_repos(doc_repo, word_repo, pl_repo, doc_link_repo, query, urls):  # з�
 
         new_doc.links = len(external_links)  # количество всех внешних ссылок на сайте
         site_links.append([new_doc, external_links])
+
+    pl_repo.remove_zero()  # если вхождений слова из запроса не было в документе, то убираем это
 
     for cur_doc, links in site_links:
         for link in links:

@@ -14,7 +14,11 @@ def main():
             "https://www.geeksforgeeks.org/courses",
             "https://github.com/python/pythondotorg/issues",
             "https://www.youtube.com/geeksforgeeksvideos",
-            "https://github.com/"
+            "https://github.com/",
+            "https://archlinux.org/",
+            "https://flathub.org/en",
+            "https://kantiana.ru/",
+            "https://vk.com/ikbfu"
             ]
 
     parser = ArgumentParser()
@@ -54,10 +58,10 @@ def main():
 
 
     if len(search_result) == 0:
-        print("No sites contait this query")
+        print("\nNo sites contait this query")
 
     else:
-        print("Best results:\n")
+        print("\nBest results:\n")
         for link, value in search_result:
             print(link)
     

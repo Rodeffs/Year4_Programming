@@ -14,6 +14,9 @@ def tf_idf(doc_repo, word_repo, pl_repo, approach):
             for doc in all_docs:
                 pl = pl_repo.get_both_id(word.word_id, doc.doc_id)
 
+                if pl is None:  # если нет такой связи, то ничего не делаем
+                    continue
+
                 if pl.count > 0:  # если слово есть в документе, то увеличиваем кол-во документов с ним
                     word.doc_count += 1
 
@@ -32,6 +35,9 @@ def tf_idf(doc_repo, word_repo, pl_repo, approach):
         for doc in all_docs:
             for word in all_words:
                 pl = pl_repo.get_both_id(word.word_id, doc.doc_id)
+
+                if pl is None:  # если нет такой связи, то ничего не делаем
+                    continue
 
                 if pl.count > 0:
                     word.doc_count += 1

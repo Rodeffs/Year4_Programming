@@ -81,6 +81,15 @@ class PLRepo:
     def add(self, pl) -> None:  # добавить posting list
         self.__data.append(pl)
 
+    def remove_zero(self) -> None:  # удалить все posting list, где кол-во слов равно 0
+        new_data = []
+
+        for entry in self.__data:
+            if entry.count > 0:
+                new_data.append(entry)
+
+        self.__data = new_data
+
 
 class WordRepo:
     def __init__(self) -> None:
