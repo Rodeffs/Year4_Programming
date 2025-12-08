@@ -1,99 +1,51 @@
-"""pregel.py is a python 2.6 module implementing a toy single-machine
-version of Google's Pregel system for large-scale graph processing."""
+class Vertice:
+    def __init__(self, doc, d):
+        self.__incoming = []
+        self.__doc = doc
+        self.__d = d
+        self.__neighbors = []
 
-import collections
-import threading
+    def get_id(self) -> int:
+        return self.__doc.doc_id
 
-class Vertex():
+    def add_neighbor(self, vertice) -> None:
+        self.__neighbors.append(vertice)
 
-    def __init__(self,id,value,out_vertices):
-        # This is mostly self-explanatory, but has a few quirks:
-        #
-        # self.id is included mainly because it's described in the
-        # Pregel paper.  It is used briefly in the pagerank example,
-        # but not in any essential way, and I was tempted to omit it.
-        #
-        # Each vertex stores the current superstep number in
-        # self.superstep.  It's arguably not wise to store many copies
-        # of global state in instance variables, but Pregel's
-        # synchronous nature lets us get away with it.
-        self.id = id 
-        self.value = value
-        self.out_vertices = out_vertices
-        self.incoming_messages = []
-        self.outgoing_messages = []
-        self.active = True
-        self.superstep = 0
-   
-class Pregel():
+    def send(self) -> None:
+        for neighbor in self.__neighbors:
+            neighbor.receive(self.__doc.weight / self.__doc.links)
 
-    def __init__(self,vertices,num_workers):
-        self.vertices = vertices
-        self.num_workers = num_workers
+    def receive(self, message) -> None:
+        self.__incoming.append(message)
 
-    def run(self):
-        """Runs the Pregel instance."""
-        self.partition = self.partition_vertices()
-        while self.check_active():
-            self.superstep()
-            self.redistribute_messages()
+    def update(self) -> None:
+        self.__doc.weight = (1-self.__d) + self.__d*sum(self.__incoming)
 
-    def partition_vertices(self):
-        """Returns a dict with keys 0,...,self.num_workers-1
-        representing the worker threads.  The corresponding values are
-        lists of vertices assigned to that worker."""
-        partition = collections.defaultdict(list)
-        for vertex in self.vertices:
-            partition[self.worker(vertex)].append(vertex)
-        return partition
 
-    def worker(self,vertex):
-        """Returns the id of the worker that vertex is assigned to."""
-        return hash(vertex) % self.num_workers
+def pregel(doc_repo, doc_link_repo, d, cycle_count):
+    # Суть алгоритма - есть вершины, каждая вершина хранит свой рейтинг, полученные сообщения и список соседей.
+    # В первый супершаг каждая вершина отправляет соседям сообщение, где содержится её рейтинг / кол-во ссылок.
+    # Во второй супершаг каждая вершина обновляет свой рейтинг по формуле (1-d) + d*sum, где sum - сумма всех сообщений.
+    # Повторяем эти шаги до сходимости
 
-    def superstep(self):
-        """Completes a single superstep.  
+    vertices = []
 
-        Note that in this implementation, worker threads are spawned,
-        and then destroyed during each superstep.  This creation and
-        destruction causes some overhead, and it would be better to
-        make the workers persistent, and to use a locking mechanism to
-        synchronize.  The Pregel paper suggests that this is how
-        Google's Pregel implementation works."""
-        workers = []
-        for vertex_list in self.partition.values():
-            worker = Worker(vertex_list)
-            workers.append(worker)
-            worker.start()
-        for worker in workers:
-            worker.join()
+    for doc in doc_repo.get_all():  # создаём вершины
+        new_vertice = Vertice(doc, d)
+        vertices.append(new_vertice)
 
-    def redistribute_messages(self):
-        """Updates the message lists for all vertices."""
-        for vertex in self.vertices:
-            vertex.superstep +=1
-            vertex.incoming_messages = []
-        for vertex in self.vertices:
-            for (receiving_vertix,message) in vertex.outgoing_messages:
-                receiving_vertix.incoming_messages.append((vertex,message))
 
-    def check_active(self):
-        """Returns True if there are any active vertices, and False
-        otherwise."""
-        return any([vertex.active for vertex in self.vertices])
+    for vertice in vertices:  # устанавливаем связи
+        for link in doc_link_repo.get_id_from(vertice.get_id()):  # получаем все документы, на которые ссылается данный
+            for other in vertices:
+                if other.get_id() == link.doc_to_id:
+                    vertice.add_neighbor(other)
+                    break
 
-class Worker(threading.Thread):
+    for i in range(cycle_count):
+        for vertice in vertices:  # супершаг 1 - все вершины отправляют соседям сообщения, которые содержат их ранг / кол-во всех ссылок
+            vertice.send()
 
-    def __init__(self,vertices):
-        threading.Thread.__init__(self)
-        self.vertices = vertices
+        for vertice in vertices:  # супершаг 2 - все вершины обновляют свой ранг в зависимости от полученных сообщений
+            vertice.update()
 
-    def run(self):
-        self.superstep()
-
-    def superstep(self):
-        """Completes a single superstep for all the vertices in
-        self."""
-        for vertex in self.vertices:
-            if vertex.active:
-                vertex.update()
