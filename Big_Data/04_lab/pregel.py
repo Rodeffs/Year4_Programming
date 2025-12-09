@@ -20,6 +20,7 @@ class Vertice:
 
     def update(self) -> None:
         self.__doc.weight = (1-self.__d) + self.__d*sum(self.__incoming)
+        self.__incoming = []
 
 
 def pregel(doc_repo, doc_link_repo, d, cycle_count):
@@ -33,7 +34,6 @@ def pregel(doc_repo, doc_link_repo, d, cycle_count):
     for doc in doc_repo.get_all():  # создаём вершины
         new_vertice = Vertice(doc, d)
         vertices.append(new_vertice)
-
 
     for vertice in vertices:  # устанавливаем связи
         for link in doc_link_repo.get_id_from(vertice.get_id()):  # получаем все документы, на которые ссылается данный

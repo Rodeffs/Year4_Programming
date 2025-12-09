@@ -11,10 +11,7 @@ from result import result
 default_urls = [
         "https://en.wikipedia.org/wiki/Python_(programming_language)",
         "https://www.python.org/",
-        "https://www.geeksforgeeks.org/courses",
         "https://github.com/python/pythondotorg/issues",
-        "https://www.youtube.com/geeksforgeeksvideos",
-        "https://github.com/",
         "https://archlinux.org/",
         "https://flathub.org/en",
         "https://kantiana.ru/",
